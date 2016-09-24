@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+# usage: play-list <youtube_playlist_url> | sox -t mp3 - -t [coreaudio|alsa]
+
+base_url="https://youtube.com/watch?v="
+shuf="$(if $(test -x "$(which shuf)"); then echo 'shuf'; else echo 'gshuf'; fi)"
+playlist="$(youtube-dl --flat-playlist -j $1 | jq -r '"'$base_url'"+.url' | $shuf)"
+
+fade=2
+for video in $playlist; do
+  set -- $(youtube-dl -f'bestaudio[ext=webm]' -j $video \
+    | jq '[.acodec, .duration, .url, .title]' | jq -cj '@sh')
+  acodec=$(echo $1 | tr -d "'"); shift
+  duration=$(($1 - 8)); shift
+  url=$(echo $1 | tr -d "'"); shift
+  test -z "$url" && continue || >&2 echo $(echo $* | tr -d "'")
+  curl -s "$url" \
+    | ffmpeg -loglevel panic -vn -t $duration -acodec $acodec -i - -f mp3 -ar 44100 -ab 128k \
+      -af dynaudnorm,afade=in:st=0:d=$fade,afade=out:st=$(($duration-$fade-2)):d=$fade \
+      pipe: \
+    | pv -L 16125
+done

@@ -1,0 +1,29 @@
+{
+  "name": "baudio-radio",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "xo"
+  },
+  "author": "",
+  "license": "ISC",
+	"xo": {
+    "esnext": true,
+    "space": true,
+    "semicolon": false,
+    "rules": {
+      "curly": 0,
+      "no-constant-condition": 0,
+      "space-before-function-paren": 0,
+      "babel/new-cap": 0,
+      "babel/object-curly-spacing": 0,
+      "no-unused-vars": ["error", { "args": "none" }]
+    }
+  },
+  "dependencies": {
+    "duplex-child-process": "0.0.5",
+    "icy": "^2.1.0",
+    "respawn": "^2.4.1"
+  }
+}
